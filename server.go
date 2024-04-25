@@ -39,11 +39,22 @@ func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	// Convert CSV data to plain text
+	// Convert CSV data to structured text response
 	var text bytes.Buffer
-	writer := csv.NewWriter(&text)
-	writer.WriteAll(records)
-	writer.Flush()
+	for i, record := range records {
+		if i > 0 {
+			text.WriteString("\n")
+		}
+		for j, column := range record {
+			if j > 0 {
+				text.WriteString("$")
+			}
+			if column == "" {
+				column = " " // Replace empty string with space
+			}
+			text.WriteString(column)
+		}
+	}
 
 	return text.String(), nil
 }
@@ -62,11 +73,22 @@ func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
 		return nil, err
 	}
 
-	// Convert CSV data to plain text
+	// Convert CSV data to structured text response
 	var text bytes.Buffer
-	writer := csv.NewWriter(&text)
-	writer.WriteAll(csvData)
-	writer.Flush()
+	for i, record := range csvData {
+		if i > 0 {
+			text.WriteString("\n")
+		}
+		for j, column := range record {
+			if j > 0 {
+				text.WriteString("$")
+			}
+			if column == "" {
+				column = " " // Replace empty string with space
+			}
+			text.WriteString(column)
+		}
+	}
 
 	return text.String(), nil
 }
