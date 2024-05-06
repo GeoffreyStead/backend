@@ -150,30 +150,14 @@ func Handler() http.Handler {
 	})
 }
 
-func main() {
-	// Serve GraphQL requests with CORS support
-	http.Handle("/graphql", corsHandler(Handler()))
-
-	// Start the HTTP server
-	fmt.Println("Server is running on port 8080")
-	http.ListenAndServe(":8080", nil)
+// Exported function serving as the entry point for the serverless function
+func EntryPoint(w http.ResponseWriter, r *http.Request) {
+	Handler().ServeHTTP(w, r)
 }
 
-// Define a handler function for CORS
-func corsHandler(h http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from your frontend URL
-		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
-
-		// If it's a preflight request, respond with 200 OK
-		if r.Method == "OPTIONS" {
-			w.WriteHeader(http.StatusOK)
-			return
-		}
-
-		// Call the actual handler
-		h.ServeHTTP(w, r)
-	})
+func main() {
+	// Start the HTTP server
+	fmt.Println("Server is running")
+	http.HandleFunc("/", EntryPoint)
+	http.ListenAndServe(":8080", nil)
 }
