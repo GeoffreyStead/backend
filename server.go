@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"bytes"
@@ -141,8 +141,7 @@ var mutationType = graphql.NewObject(
 	},
 )
 
-// Handler function for Vercel serverless function
-func Handler(w http.ResponseWriter, r *http.Request) {
+func main() {
 	// Create a new GraphQL handler
 	graphQLHandler := handler.New(&handler.Config{
 		Schema: &schema,
@@ -171,12 +170,7 @@ func Handler(w http.ResponseWriter, r *http.Request) {
 	// Serve GraphQL requests with CORS support
 	http.Handle("/graphql", corsHandler(graphQLHandler))
 
-	// Pass the request to the default ServeMux, which will invoke the appropriate handler
-	http.DefaultServeMux.ServeHTTP(w, r)
-}
-
-func main() {
-	// Start the HTTP server using Vercel's handler
-	http.HandleFunc("/", Handler)
-	fmt.Println("Server is running")
+	// Start the HTTP server
+	fmt.Println("Server is running on port 8080")
+	http.ListenAndServe(":8080", nil)
 }
