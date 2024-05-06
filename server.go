@@ -152,7 +152,7 @@ func main() {
 	corsHandler := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			// Set CORS headers
-			w.Header().Set("Access-Control-Allow-Origin", "https://frontend-nine-mu-81.vercel.app") // Allow requests from your frontend URL
+			w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from your frontend URL
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
