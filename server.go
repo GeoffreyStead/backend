@@ -4,8 +4,8 @@ import (
 	"bytes"
 	"encoding/csv"
 	"fmt"
-	"io/ioutil" // Import ioutil for file reading
 	"io"
+	"io/ioutil" // Import ioutil for file reading
 	"net/http"
 	"strings"
 
@@ -116,7 +116,7 @@ var queryType = graphql.NewObject(
 		Name: "Query",
 		Fields: graphql.Fields{
 			"read": &graphql.Field{
-				Type: graphql.String,
+				Type:    graphql.String,
 				Resolve: resolveReadCSV,
 			},
 		},
@@ -148,18 +148,21 @@ func main() {
 		Pretty: true,
 	})
 
-	// Create a handler function for adding CORS headers
+	// Define a handler function for CORS
 	corsHandler := func(h http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			w.Header().Set("Access-Control-Allow-Origin", "*") // Allow requests from any origin
+			// Set CORS headers
+			w.Header().Set("Access-Control-Allow-Origin", "https://frontend-nine-mu-81.vercel.app") // Allow requests from your frontend URL
 			w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
 			w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With")
 
 			// If it's a preflight request, respond with 200 OK
 			if r.Method == "OPTIONS" {
+				w.WriteHeader(http.StatusOK)
 				return
 			}
 
+			// Call the actual handler
 			h.ServeHTTP(w, r)
 		})
 	}
