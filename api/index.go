@@ -1,4 +1,4 @@
-package handler
+package main
 
 import (
 	"bytes"
@@ -148,4 +148,9 @@ func Handler() http.Handler {
 		Schema: &schema,
 		Pretty: true,
 	})
+}
+
+func main() {
+	// Export the Handler function as the entry point for the serverless function
+	http.Handle("/", Handler())
 }
