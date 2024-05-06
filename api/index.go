@@ -13,6 +13,10 @@ import (
 	"github.com/graphql-go/handler"
 )
 
+func Handler(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "<h1>Hello from Go!</h1>")
+}
+
 // CSV file path
 const csvFilePath = "csvtest.csv"
 
