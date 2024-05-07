@@ -1,4 +1,4 @@
-package main
+package handler
 
 import (
 	"bytes"
@@ -150,7 +150,7 @@ func Handler() http.Handler {
 	})
 }
 
-func main() {
-	// Export the Handler function as the entry point for the serverless function
-	http.Handle("/", Handler())
+// Exported entry point for the serverless function
+func Index(w http.ResponseWriter, r *http.Request) {
+	Handler().ServeHTTP(w, r)
 }
