@@ -14,7 +14,7 @@ import (
 )
 
 // CSV file path
-const csvFilePath = "csvtest.csv"
+const csvFilePath = "https://backend-lac-seven.vercel.app/csvtest.csv"
 
 // Define the schema
 var schema, _ = graphql.NewSchema(
