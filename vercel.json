@@ -1,5 +1,7 @@
 {
-    "functions": {
-      "api/index.go": {}
+    "build": {
+      "env": {
+        "GO_BUILD_FLAGS": "-ldflags '-s -w'"
+      }
     }
   }
