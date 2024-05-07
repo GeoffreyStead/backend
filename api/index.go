@@ -13,9 +13,6 @@ import (
 	"github.com/graphql-go/handler"
 )
 
-// CSV file path
-const csvFilePath = "https://backend-lac-seven.vercel.app/csvtest.csv"
-
 // Define the schema
 var schema, _ = graphql.NewSchema(
 	graphql.SchemaConfig{
@@ -24,10 +21,20 @@ var schema, _ = graphql.NewSchema(
 	},
 )
 
+// URL to the CSV file
+const csvFileURL = "https://backend-lac-seven.vercel.app/csvtest.csv"
+
 // Define a resolver function for reading the CSV file
 func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
-	// Read the content of the CSV file
-	csvData, err := ioutil.ReadFile(csvFilePath)
+	// Fetch CSV content from the URL
+	resp, err := http.Get(csvFileURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Read the content of the response
+	csvData, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		return nil, err
 	}
