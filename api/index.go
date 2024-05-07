@@ -159,5 +159,17 @@ func Handler() http.Handler {
 
 // Exported entry point for the serverless function
 func Index(w http.ResponseWriter, r *http.Request) {
+	// Set CORS headers to allow cross-origin requests
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
+	w.Header().Set("Access-Control-Allow-Headers", "Content-Type")
+
+	// Handle preflight OPTIONS request
+	if r.Method == "OPTIONS" {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+
+	// Serve GraphQL requests
 	Handler().ServeHTTP(w, r)
 }
