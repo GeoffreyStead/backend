@@ -1,7 +1,7 @@
 {
     "functions": {
       "api/index.go": {
-        "runtime": "go1.22.2"
+        "runtime": "go@1.20"
       }
     }
   }
