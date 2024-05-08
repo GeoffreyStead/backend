@@ -145,8 +145,8 @@ var mutationType = graphql.NewObject(
 			"uploadCSV": &graphql.Field{
 				Type: graphql.String,
 				Args: graphql.FieldConfigArgument{
-					"file": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.Upload), // Use graphql.Upload for file uploads
+					"fileContent": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String), // Change to String if processing as string
 					},
 				},
 				Resolve: resolveUploadCSV,
