@@ -74,8 +74,23 @@ func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
 	}
 	defer file.Close()
 
-	// Read the content of the uploaded file
-	csvData, err := ioutil.ReadAll(file)
+	// Create a temporary file
+	tempFile, err := ioutil.TempFile("", "upload-*.csv")
+	if err != nil {
+		return nil, err
+	}
+	defer tempFile.Close()
+
+	// Copy the uploaded file content to the temporary file
+	_, err = io.Copy(tempFile, file)
+	if err != nil {
+		return nil, err
+	}
+
+	// Now you can use tempFile.Name() to get the path of the temporary file if needed
+
+	// Read the content of the temporary file
+	csvData, err := ioutil.ReadFile(tempFile.Name())
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +158,12 @@ var mutationType = graphql.NewObject(
 		Name: "Mutation",
 		Fields: graphql.Fields{
 			"uploadCSV": &graphql.Field{
-				Type:    graphql.String,
+				Type: graphql.String,
+				Args: graphql.FieldConfigArgument{
+					"file": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String), // Use graphql.Upload for file uploads
+					},
+				},
 				Resolve: resolveUploadCSV,
 			},
 		},
