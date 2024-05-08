@@ -145,8 +145,8 @@ var mutationType = graphql.NewObject(
 			"uploadCSV": &graphql.Field{
 				Type: graphql.String,
 				Args: graphql.FieldConfigArgument{
-					"fileContent": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String),
+					"file": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.Upload), // Use graphql.Upload for file uploads
 					},
 				},
 				Resolve: resolveUploadCSV,
@@ -158,9 +158,19 @@ var mutationType = graphql.NewObject(
 // Exported function to handle GraphQL requests
 func Handler() http.Handler {
 	// Create a new GraphQL handler
-	return handler.New(&handler.Config{
-		Schema: &schema,
-		Pretty: true,
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Check if the request has the correct Content-Type header
+		contentType := r.Header.Get("Content-Type")
+		if contentType != "multipart/form-data" {
+			http.Error(w, "Expected Content-Type header to be 'multipart/form-data'", http.StatusUnsupportedMediaType)
+			return
+		}
+
+		// Create a new GraphQL handler with proper Content-Type
+		handler.New(&handler.Config{
+			Schema: &schema,
+			Pretty: true,
+		}).ServeHTTP(w, r)
 	})
 }
 
