@@ -67,7 +67,7 @@ func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
 
 // Define a resolver function for uploading the CSV file
 func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
-	// Extract file from the resolver arguments
+	// Extract file from the request
 	file, _, err := p.Context.Value(http.ServerContextKey).(*http.Request).FormFile("file")
 	if err != nil {
 		return nil, err
@@ -143,12 +143,7 @@ var mutationType = graphql.NewObject(
 		Name: "Mutation",
 		Fields: graphql.Fields{
 			"uploadCSV": &graphql.Field{
-				Type: graphql.String,
-				Args: graphql.FieldConfigArgument{
-					"fileContent": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String), // Change to String if processing as string
-					},
-				},
+				Type:    graphql.String,
 				Resolve: resolveUploadCSV,
 			},
 		},
