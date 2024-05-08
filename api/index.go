@@ -3,7 +3,6 @@ package handler
 import (
 	"bytes"
 	"encoding/csv"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -68,21 +67,29 @@ func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
 
 // Define a resolver function for uploading the CSV file
 func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
-	// Extract file content from the resolver arguments
-	fileContent, ok := p.Args["fileContent"].(string)
-	if !ok {
-		return nil, fmt.Errorf("file content must be a string")
+	// Extract file from the resolver arguments
+	file, _, err := p.Context.Value(http.ServerContextKey).(*http.Request).FormFile("file")
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	// Read the content of the uploaded file
+	csvData, err := ioutil.ReadAll(file)
+	if err != nil {
+		return nil, err
 	}
 
-	// Parse the CSV content
-	csvData, err := parseCSVContent(fileContent)
+	// Parse CSV content
+	reader := csv.NewReader(bytes.NewReader(csvData))
+	records, err := reader.ReadAll()
 	if err != nil {
 		return nil, err
 	}
 
 	// Convert CSV data to structured text response
 	var text bytes.Buffer
-	for i, record := range csvData {
+	for i, record := range records {
 		if i > 0 {
 			text.WriteString("\n")
 		}
