@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"encoding/csv"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -67,44 +68,21 @@ func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
 
 // Define a resolver function for uploading the CSV file
 func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
-	// Extract file from the request
-	file, _, err := p.Context.Value(http.ServerContextKey).(*http.Request).FormFile("file")
-	if err != nil {
-		return nil, err
-	}
-	defer file.Close()
-
-	// Create a temporary file
-	tempFile, err := ioutil.TempFile("", "upload-*.csv")
-	if err != nil {
-		return nil, err
-	}
-	defer tempFile.Close()
-
-	// Copy the uploaded file content to the temporary file
-	_, err = io.Copy(tempFile, file)
-	if err != nil {
-		return nil, err
+	// Extract file content from the resolver arguments
+	fileContent, ok := p.Args["fileContent"].(string)
+	if !ok {
+		return nil, fmt.Errorf("file content must be a string")
 	}
 
-	// Now you can use tempFile.Name() to get the path of the temporary file if needed
-
-	// Read the content of the temporary file
-	csvData, err := ioutil.ReadFile(tempFile.Name())
-	if err != nil {
-		return nil, err
-	}
-
-	// Parse CSV content
-	reader := csv.NewReader(bytes.NewReader(csvData))
-	records, err := reader.ReadAll()
+	// Parse the CSV content
+	csvData, err := parseCSVContent(fileContent)
 	if err != nil {
 		return nil, err
 	}
 
 	// Convert CSV data to structured text response
 	var text bytes.Buffer
-	for i, record := range records {
+	for i, record := range csvData {
 		if i > 0 {
 			text.WriteString("\n")
 		}
@@ -160,8 +138,8 @@ var mutationType = graphql.NewObject(
 			"uploadCSV": &graphql.Field{
 				Type: graphql.String,
 				Args: graphql.FieldConfigArgument{
-					"file": &graphql.ArgumentConfig{
-						Type: graphql.NewNonNull(graphql.String), // Use graphql.Upload for file uploads
+					"fileContent": &graphql.ArgumentConfig{
+						Type: graphql.NewNonNull(graphql.String),
 					},
 				},
 				Resolve: resolveUploadCSV,
@@ -173,19 +151,9 @@ var mutationType = graphql.NewObject(
 // Exported function to handle GraphQL requests
 func Handler() http.Handler {
 	// Create a new GraphQL handler
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if the request has the correct Content-Type header
-		contentType := r.Header.Get("Content-Type")
-		if contentType != "multipart/form-data" {
-			http.Error(w, "Expected Content-Type header to be 'multipart/form-data'", http.StatusUnsupportedMediaType)
-			return
-		}
-
-		// Create a new GraphQL handler with proper Content-Type
-		handler.New(&handler.Config{
-			Schema: &schema,
-			Pretty: true,
-		}).ServeHTTP(w, r)
+	return handler.New(&handler.Config{
+		Schema: &schema,
+		Pretty: true,
 	})
 }
 
