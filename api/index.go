@@ -69,13 +69,13 @@ func resolveReadCSV(p graphql.ResolveParams) (interface{}, error) {
 // Define a resolver function for uploading the CSV file
 func resolveUploadCSV(p graphql.ResolveParams) (interface{}, error) {
 	// Extract file content from the resolver arguments
-	fileContent, ok := p.Args["fileContent"].(string)
+	file, ok := p.Args["file"].(string)
 	if !ok {
 		return nil, fmt.Errorf("file content must be a string")
 	}
 
 	// Parse the CSV content
-	csvData, err := parseCSVContent(fileContent)
+	csvData, err := parseCSVContent(file)
 	if err != nil {
 		return nil, err
 	}
@@ -138,7 +138,7 @@ var mutationType = graphql.NewObject(
 			"uploadCSV": &graphql.Field{
 				Type: graphql.String,
 				Args: graphql.FieldConfigArgument{
-					"fileContent": &graphql.ArgumentConfig{
+					"file": &graphql.ArgumentConfig{
 						Type: graphql.NewNonNull(graphql.String),
 					},
 				},
